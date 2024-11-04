@@ -80,14 +80,22 @@ public class ServerInvocationMessage: HubMessage, Encodable {
 public class ClientInvocationMessage: HubMessage, Decodable {
     public let type = MessageType.Invocation
     public let target: String
-    private var arguments: UnkeyedDecodingContainer?
+    public var arguments: UnkeyedDecodingContainer?
+    public private(set) var payload: Data
+    
+    public static func fromDecoder(_ decoder: JSONDecoder, payload: Data) throws -> Self {
+        let message = try decoder.decode(Self.self, from: payload)
+        message.payload = payload
+        return message
+    }
 
-    public required init (from decoder: Decoder) throws {
+    public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         target = try container.decode(String.self, forKey: .target)
         if container.contains(.arguments) {
             arguments = try container.nestedUnkeyedContainer(forKey: .arguments)
         }
+        payload = .init()
     }
 
     public func getArgument<T: Decodable>(type: T.Type) throws -> T {

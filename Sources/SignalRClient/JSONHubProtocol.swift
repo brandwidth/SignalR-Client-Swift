@@ -46,7 +46,7 @@ public class JSONHubProtocol: HubProtocol {
         let messageType = try getMessageType(payload: payload)
             switch messageType {
             case .Invocation:
-                return try decoder.decode(ClientInvocationMessage.self, from: payload)
+                return try ClientInvocationMessage.fromDecoder(decoder, payload: payload)
             case .StreamItem:
                 return try decoder.decode(StreamItemMessage.self, from: payload)
             case .Completion:
