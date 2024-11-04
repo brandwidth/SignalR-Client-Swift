@@ -621,6 +621,23 @@ public class ArgumentExtractor {
     public func hasMoreArgs() -> Bool {
         return clientInvocationMessage.hasMoreArgs
     }
+
+    public func argumentsPayload(prettyPrinted: Bool = true) -> String? {
+        let payload = clientInvocationMessage.payload
+        let `default` = { String(data: payload, encoding: .utf8) }
+        guard let jsonPayload = try? JSONSerialization.jsonObject(with: payload) as? [String: Any],
+              let args = jsonPayload["arguments"] as? [Any] else {
+            return `default`()
+        }
+        return optionalString(from: args.first, prettyPrinted) ?? optionalString(from: args, prettyPrinted) ?? `default`()
+    }
+    
+    private func optionalString(from obj: Any?, _ prettyPrinted: Bool) -> String? {
+        guard let obj,
+              JSONSerialization.isValidJSONObject(obj),
+              let data = try? JSONSerialization.data(withJSONObject: obj, options: prettyPrinted ? [.prettyPrinted] : []) else { return nil }
+        return .init(data: data, encoding: .utf8)
+    }
 }
 
 fileprivate enum HandshakeStatus {
