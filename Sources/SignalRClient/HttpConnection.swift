@@ -270,7 +270,7 @@ public class HttpConnection: Connection {
 
             logger.log(logLevel: .debug, message: "Invoking connectionDidFailToOpen")
             options.callbackQueue.async {
-                self.delegate?.connectionDidFailToOpen(error: self.stopError ?? error!)
+                self.delegate?.connectionDidFailToOpen(error: self.stopError ?? error ?? SignalRError.connectionIsBeingClosed)
             }
         } else {
             logger.log(logLevel: .debug, message: "Invoking connectionDidClose (\(#function): \(#line))")
